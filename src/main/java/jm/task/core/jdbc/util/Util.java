@@ -6,28 +6,14 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.service.ServiceRegistry;
-
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.Properties;
 
-public class Util {
+public class Util  {
     // реализуйте настройку соеденения с БД
-    public static Connection getConnection() {
-        Connection connection = null;
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/mynewdb", "root",
-                    "159951");
-        } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
-        }
-        return connection;
-    }
-
+    private static Util instance;
     private static  SessionFactory sessionFactory = getSessionFactory();
-    public static SessionFactory getSessionFactory() {
+    public static synchronized SessionFactory getSessionFactory() {
+
         if( sessionFactory == null){
             try{
                 Configuration configuration = new Configuration();
@@ -52,6 +38,7 @@ public class Util {
                 e.printStackTrace();
             }
         }
+
         return sessionFactory;
     }
 

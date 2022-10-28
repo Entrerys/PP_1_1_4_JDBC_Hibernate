@@ -2,8 +2,8 @@ package jm.task.core.jdbc.dao;
 
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
-import jm.task.core.jdbc.util.UtilHibernate;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.NativeQuery;
 
@@ -15,10 +15,11 @@ public class UserDaoHibernateImpl implements UserDao {
 
     }
 
+    private SessionFactory sessionFactory = Util.getSessionFactory();
 
     @Override
     public void createUsersTable() {
-        try (Session session = Util.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
 
             Transaction transaction = session.beginTransaction();
             NativeQuery query = session.createSQLQuery("create table users" +
@@ -35,9 +36,9 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void dropUsersTable() {
-        try (Session session = Util.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            NativeQuery query = session.createSQLQuery("drop table users").addEntity(User.class);
+            NativeQuery query = session.createSQLQuery("TRUNCATE TABLE users").addEntity(User.class);
             query.executeUpdate();
             transaction.commit();
 
@@ -49,11 +50,11 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-        try (Session session = Util.getSessionFactory().openSession()) {
-            session.getTransaction().begin();
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
 
             session.save(new User(name, lastName, age));
-            session.getTransaction().commit();
+            transaction.commit();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -63,17 +64,17 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void removeUserById(long id) {
-        try (Session session = Util.getSessionFactory().openSession()) {
-            session.getTransaction().begin();
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
 
             session.delete(session.get(User.class, id));
-            session.getTransaction().commit();
+            transaction.commit();
         }
     }
 
     @Override
     public List<User> getAllUsers() {
-        try (Session session = Util.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             return session.createQuery("from User", User.class).list();
 
         }
@@ -82,7 +83,7 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void cleanUsersTable() {
-        try (Session session = Util.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             NativeQuery query = session.createSQLQuery("DELETE from users").addEntity(User.class);
             query.executeUpdate();
