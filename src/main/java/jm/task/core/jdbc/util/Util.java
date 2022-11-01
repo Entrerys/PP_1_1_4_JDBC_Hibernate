@@ -10,11 +10,21 @@ import java.util.Properties;
 
 public class Util  {
     // реализуйте настройку соеденения с БД
-    private static Util instance;
-    private static  SessionFactory sessionFactory = getSessionFactory();
-    public static synchronized SessionFactory getSessionFactory() {
+    private static Util util = null;
+    private Util(){};
 
-        if( sessionFactory == null){
+    public static Util getUtil() {
+        if (util== null) {
+            util = new Util();
+        }
+        return util;
+    }
+
+
+    private static  SessionFactory sessionFactory = null;
+    public static SessionFactory getSessionFactory() {
+
+        if( sessionFactory == null ){
             try{
                 Configuration configuration = new Configuration();
                 Properties settings = new Properties();
